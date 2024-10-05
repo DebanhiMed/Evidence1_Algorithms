@@ -69,6 +69,56 @@ vector<int> kmp(string texto, string patron) {
     return posMatch; // Retorna las posiciones de coincidencia.
 }
 
+// Función que preprocesa la cadena original al insertar un carácter '#' entre cada carácter.
+string preprocess(const string &s) {
+    string modified = "#"; // Comienza con un símbolo de separación.
+    for (size_t i = 0; i < s.size(); i++) {
+        modified += s[i]; // Agrega el carácter actual de la cadena original.
+        modified += "#"; // Agrega el símbolo de separación después de cada carácter.
+    }
+    return modified; // Retorna la cadena modificada.
+}
+
+// Función que implementa el algoritmo de Manacher para encontrar el palíndromo más largo en una cadena.
+pair<string, int> manacher(const string &s) {
+    string modified = preprocess(s);  // Preprocesa la cadena original.
+    int n = modified.size(); // Longitud de la cadena preprocesada.
+    vector<int> P(n, 0);  // Vector para almacenar los radios de los palíndromos.
+    int C = 0, R = 0; // C: Centro actual, R: Límite derecho.
+
+    // Aplicar el algoritmo de Manacher.
+    for (int i = 0; i < n; ++i) {
+        int mirror = 2 * C - i; // Encuentra el espejo del índice actual respecto al centro.
+
+        if (i < R) // Si i está dentro del rango del palíndromo actual.
+            P[i] = min(R - i, P[mirror]); // Establece un valor inicial para P[i] usando el palíndromo espejo.
+
+        // Expande el palíndromo alrededor del índice i.
+        while (i + P[i] + 1 < n && i - P[i] - 1 >= 0 && modified[i + P[i] + 1] == modified[i - P[i] - 1]) {
+            P[i]++; // Aumenta el tamaño del palíndromo si los extremos coinciden.
+        }
+
+        // Si se encuentra un nuevo palíndromo que se extiende más allá del límite derecho.
+        if (i + P[i] > R) {
+            C = i; // Actualiza el centro.
+            R = i + P[i]; // Actualiza el límite derecho.
+        }
+    }
+
+    // Busca el palíndromo más largo encontrado.
+    int max_len = 0, center_index = 0;
+    for (int i = 0; i < n; ++i) {
+        if (P[i] > max_len) {
+            max_len = P[i]; // Actualiza la longitud máxima.
+            center_index = i; // Guarda el índice del centro del palíndromo más largo.
+        }
+    }
+
+    // Calcula la posición de inicio del palíndromo más largo en la cadena original.
+    int start = (center_index - max_len) / 2;
+    return make_pair(s.substr(start, max_len), start); // Retorna el palíndromo más largo.
+}
+
 int main(){
     string file1 = "transmission1.txt";
     string file2 = "transmission2.txt";
@@ -77,22 +127,24 @@ int main(){
     string outputFile = "checking.txt";
 
     vector<string> mcode;
+    vector<string> transmissions;
 
-    string T1;
-    string T2;
-    string T3;
-    string code;
+    string T1, T2, T3, code;
     
     ifstream inputFile1(file1);
     getline(inputFile1, T1);
+    transmissions.push_back(T1);
 
     ifstream inputFile2(file2);
     getline(inputFile2, T2);
+    transmissions.push_back(T2);
 
     ifstream inputFile3(file3);
     getline(inputFile3, T3);
+    transmissions.push_back(T3);
 
     ifstream mcodeFile(malicious);
+
     while(getline(mcodeFile, code)) {
         mcode.push_back(code);
     }
@@ -101,14 +153,37 @@ int main(){
     for(int i = 0; i < mcode.size(); i++){
         cout << "Código: " << mcode[i] << endl;
 
-        vector<int> debanhilesabekaemepe = kmp(T1, mcode[i]);
-        int size = debanhilesabekaemepe.size();
-        cout << "Transmission"  << ".txt ==> " << size << " veces" << endl;
-        for(int j = 0; j < size; j++){
-            cout << debanhilesabekaemepe[j] << ", ";
+        for(int j = 0; j < 3; j++){
+            vector<int> kmpVector = kmp(transmissions[j], mcode[i]);
+            int size = kmpVector.size();
+
+            cout << "Transmission" << j + 1 << ".txt ==> " << size << " veces" << endl;
+
+            for(int k = 0; k < size; k++){
+                cout << kmpVector[k] << ", ";
+            }
+
+            cout << endl;
         }
-        cout << endl;
+
+        cout << "La subsecuencia más encontrada es: " << endl;
+        cout << "- - - - - - - - - - - - --" << endl;
     }
+
+    cout << "==============" << endl;
+    cout << "Palíndromo más grande:" << endl;
+
+    for(int j = 0; j < 3; j++){
+
+        pair<string, int> palindrome = manacher(transmissions[j]);
+
+        cout << "Transmission" << j + 1 << ".txt ==> " << "Posición: " << palindrome.second << endl;
+        cout << palindrome.first << endl;
+        cout << "----" << endl;
+    }
+
+    cout << "==============" << endl;
+    cout << "Los Substring más largos son:" << endl;
 
     return 0;
 }
