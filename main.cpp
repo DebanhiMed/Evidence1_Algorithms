@@ -119,6 +119,61 @@ pair<string, int> manacher(const string &s) {
     return make_pair(s.substr(start, max_len), start); // Retorna el palíndromo más largo.
 }
 
+// Función que encuentra la longitud de la subcadena más larga común entre s1 y s2
+string longestSubstring(string s1, string s2) {
+    int posEnd;
+    string output;
+    int n = s1.size(), m = s2.size(); // n -> longitud de s1, m -> longitud de s2
+    int max = 0; // Variable para almacenar la longitud máxima encontrada
+
+    // Crear una tabla 2D para almacenar longitudes de subcadenas comunes
+    vector<vector<int> > lcs(n, vector<int>(m, 0));
+    
+    // Inicializar la primera columna de la tabla
+    for (int i = 0; i < n; i++) {
+        if (s1[i] == s2[0]) {
+            lcs[i][0] = 1; // Si hay coincidencia con el primer carácter de s2
+            max = 1; // Actualizar el máximo
+        } else {
+            lcs[i][0] = 0; // No hay coincidencia
+        }
+    }
+
+    // Inicializar la primera fila de la tabla
+    for (int j = 0; j < m; j++) {
+        if (s1[0] == s2[j]) {
+            lcs[0][j] = 1; // Si hay coincidencia con el primer carácter de s1
+            max = 1; // Actualizar el máximo
+        } else {
+            lcs[0][j] = 0; // No hay coincidencia
+        }
+    }
+
+    // Rellenar la tabla utilizando programación dinámica
+    for (int i = 1; i < n; i++) {
+        for (int j = 1; j < m; j++) {
+            if (s1[i] == s2[j]) {
+                // Si hay coincidencia, sumar 1 a la longitud de la subcadena anterior
+                lcs[i][j] = lcs[i - 1][j - 1] + 1;
+                // Actualizar el máximo si se encuentra una longitud mayor
+                if (lcs[i][j] > max) {
+                    max = lcs[i][j];
+                    posEnd = i;
+                }
+            } else {
+                // Si no hay coincidencia, reiniciar la longitud a 0
+                lcs[i][j] = 0;
+            }
+        }
+    }
+
+    if(posEnd != -1){
+        return s1.substr(posEnd - max + 1, max);
+    }
+    
+    return "";
+}
+
 int main(){
     string file1 = "transmission1.txt";
     string file2 = "transmission2.txt";
@@ -184,6 +239,12 @@ int main(){
 
     cout << "==============" << endl;
     cout << "Los Substring más largos son:" << endl;
+
+    for(int i = 0; i < 3; i++){
+        for(int j = i + 1; j < 3; j++){
+            cout << "T" << i + 1 << "-T" <<  j + 1 << " ==> " << longestSubstring(transmissions[i], transmissions[j]) << endl;
+        }
+    }
 
     return 0;
 }
