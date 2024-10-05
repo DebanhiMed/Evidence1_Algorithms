@@ -170,7 +170,7 @@ string longestSubstring(string s1, string s2) {
     if(posEnd != -1){
         return s1.substr(posEnd - max + 1, max);
     }
-    
+
     return "";
 }
 
@@ -222,7 +222,7 @@ int main(){
         }
 
         cout << "La subsecuencia más encontrada es: " << endl;
-        cout << "- - - - - - - - - - - - --" << endl;
+        cout << "- - - - - - - - - - - - - -" << endl;
     }
 
     cout << "==============" << endl;
