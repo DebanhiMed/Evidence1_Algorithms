@@ -6,6 +6,7 @@
 #include <unordered_set>
 using namespace std;
 
+// Complejidad O(m)
 // Función que calcula el arreglo LPS (Longest Prefix Suffix) para un patrón dado.
 // El arreglo LPS se utiliza en el algoritmo KMP para evitar comparaciones innecesarias.
 vector<int> lps(string patron) {
@@ -35,6 +36,7 @@ vector<int> lps(string patron) {
     return lpsv; // Retorna el vector LPS.
 }
 
+// Complejidad O(n+m)
 // Función que implementa el algoritmo KMP para encontrar todas las posiciones de coincidencia
 // de un patrón en un texto.
 vector<int> kmp(string texto, string patron) {
@@ -72,6 +74,7 @@ vector<int> kmp(string texto, string patron) {
     return posMatch; // Retorna las posiciones de coincidencia.
 }
 
+// Complejidad O(n)
 // Función que preprocesa la cadena original al insertar un carácter '#' entre cada carácter.
 string preprocess(const string &s) {
     string modified = "#"; // Comienza con un símbolo de separación.
@@ -82,6 +85,7 @@ string preprocess(const string &s) {
     return modified; // Retorna la cadena modificada.
 }
 
+// Complejidad O(n)
 // Función que implementa el algoritmo de Manacher para encontrar el palíndromo más largo en una cadena.
 pair<string, int> manacher(const string &s) {
     string modified = preprocess(s);  // Preprocesa la cadena original.
@@ -123,6 +127,7 @@ pair<string, int> manacher(const string &s) {
 }
 
 
+// Complejidad O(n*m)
 // Función que encuentra la longitud de la subcadena más larga común entre s1 y s2
 string longestSubstring(string s1, string s2) {
     int posEnd;
@@ -178,6 +183,7 @@ string longestSubstring(string s1, string s2) {
     return "";
 }
 
+// Complejidad O(n^2)
 // Función para generar subsecuencias de longitud n-1 a partir de una cadena de entrada
 void generateSubsequences(string input, vector<string> &result) {
      // Variable para construir subsecuencias
@@ -196,31 +202,45 @@ void generateSubsequences(string input, vector<string> &result) {
     }
 }
 
+// Complejidad O(k)
 // Función para filtrar subsecuencias a una longitud específica y eliminar duplicados
 void filterSubsequences(vector<string> subsequences, vector<string> &filteredResult, int newSize) {
+    // Conjunto para almacenar subsecuencias 
     unordered_set<string> uniqueSet;
     for (int i = 0; i < subsequences.size(); i++) {
+        Si la longitud coincide con el tamaño deseado
         if (subsequences[i].length() == newSize) {
+            //agregar la subsecuencia al conjunto
             uniqueSet.insert(subsequences[i]);
         }
     }
+     // Asigna las subsecuencias únicas al resultado
     filteredResult.assign(uniqueSet.begin(), uniqueSet.end());
 }
 
 
+// Complejidad O(n*k)
+// Función para encontrar la subsecuencia más frecuente entre los tres archivos
 void findMostFrequentSubsequence(string trans1, string trans2, string trans3, string code, string &mostFound, int &maxMatches, string &bestFile) {
     vector<string> subsequences, filteredSubsequences;
+    // Genera todas las subsecuencias
     generateSubsequences(code, subsequences);
+    // Filtra las subsecuencias 
     filterSubsequences(subsequences, filteredSubsequences, code.length() - 1);
-
+    
+    // Inicializa el máximo de coincidencias a 0
     maxMatches = 0;
 
     for (int i = 0; i < filteredSubsequences.size(); i++) {
         string subseq = filteredSubsequences[i];
+        // Cuenta coincidencias en trans1
         int count1 = kmp(trans1, subseq).size();
+        // Cuenta coincidencias en trans2
         int count2 = kmp(trans2, subseq).size();
+        // Cuenta coincidencias en trans3
         int count3 = kmp(trans3, subseq).size();
 
+        // Actualiza el máximo de coincidencias y el archivo donde se encuentra
         if (count1 > maxMatches) {
             maxMatches = count1;
             mostFound = subseq;
