@@ -208,7 +208,7 @@ void filterSubsequences(vector<string> subsequences, vector<string> &filteredRes
     // Conjunto para almacenar subsecuencias 
     unordered_set<string> uniqueSet;
     for (int i = 0; i < subsequences.size(); i++) {
-        Si la longitud coincide con el tamaño deseado
+        //Si la longitud coincide con el tamaño deseado
         if (subsequences[i].length() == newSize) {
             //agregar la subsecuencia al conjunto
             uniqueSet.insert(subsequences[i]);
