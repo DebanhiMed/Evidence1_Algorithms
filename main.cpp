@@ -201,36 +201,35 @@ void filterSubsequences(vector<string> subsequences, vector<string> &filteredRes
     filteredResult.assign(uniqueSet.begin(), uniqueSet.end());
 }
 
-void countMatchesKMP(string text, string subsequence, int &maxMatches, int &position, int idx) {
-    vector<int> matches = kmp(text, subsequence);
-    if (matches.size() > maxMatches) {
-        maxMatches = matches.size();
-        position = idx;
-    }
-}
-
-vector<string> analyzeSubsequences(string trans1, string trans2, string trans3, string code) {
+void findMostFrequentSubsequence(string trans1, string trans2, string trans3, string code, string &mostFound, int &maxMatches, string &bestFile) {
     vector<string> subsequences, filteredSubsequences;
-
     generateSubsequences(code, subsequences);
-    
     filterSubsequences(subsequences, filteredSubsequences, code.length() - 1);
 
-    int maxTrans1 = 0, maxTrans2 = 0, maxTrans3 = 0;
-    int idxTrans1 = 0, idxTrans2 = 0, idxTrans3 = 0;
+    maxMatches = 0;
 
     for (int i = 0; i < filteredSubsequences.size(); i++) {
-        countMatchesKMP(trans1, filteredSubsequences[i], maxTrans1, idxTrans1, i);
-        countMatchesKMP(trans2, filteredSubsequences[i], maxTrans2, idxTrans2, i);
-        countMatchesKMP(trans3, filteredSubsequences[i], maxTrans3, idxTrans3, i);
+        string subseq = filteredSubsequences[i];
+        int count1 = kmp(trans1, subseq).size();
+        int count2 = kmp(trans2, subseq).size();
+        int count3 = kmp(trans3, subseq).size();
+
+        if (count1 > maxMatches) {
+            maxMatches = count1;
+            mostFound = subseq;
+            bestFile = "Transmission1.txt";
+        }
+        if (count2 > maxMatches) {
+            maxMatches = count2;
+            mostFound = subseq;
+            bestFile = "Transmission2.txt";
+        }
+        if (count3 > maxMatches) {
+            maxMatches = count3;
+            mostFound = subseq;
+            bestFile = "Transmission3.txt";
+        }
     }
-
-    vector<string> results(3);
-    results[0] = (maxTrans1 > 0) ? filteredSubsequences[idxTrans1] : "No se encontró subsecuencia";
-    results[1] = (maxTrans2 > 0) ? filteredSubsequences[idxTrans2] : "No se encontró subsecuencia";
-    results[2] = (maxTrans3 > 0) ? filteredSubsequences[idxTrans3] : "No se encontró subsecuencia";
-
-    return results;
 }
 
 
@@ -283,13 +282,17 @@ int main(){
 
             cout << endl;
         }
-        cout << "La subsecuencia más encontrada es: " << endl;
+        string mostFound, bestFile;
+        int maxMatches;
+        findMostFrequentSubsequence(T1, T2, T3, mcode[i], mostFound, maxMatches, bestFile);
 
-        vector<string> results = analyzeSubsequences(T1, T2, T3, mcode[i]);
-
-        for (int j = 0; j < 3; j++) {
-            cout << "Transmission " << j + 1 << " ==> " << results[j] << endl;
+        if (maxMatches > 0) {
+            cout << "La subsecuencia más encontrada es: " << mostFound 
+                 << " con " << maxMatches << " veces en el archivo " << bestFile << endl;
+        } else {
+            cout << "No se encontró ninguna subsecuencia con coincidencias." << endl;
         }
+
         cout << "- - - - - - - - - - - - - -" << endl;
     }
 
