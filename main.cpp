@@ -1,6 +1,9 @@
+//Debanhi Monserrath Medina Elizondo A0083550
+//Alejandra Yeray Peña Meza A01722539
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <unordered_set>
 using namespace std;
 
 // Función que calcula el arreglo LPS (Longest Prefix Suffix) para un patrón dado.
@@ -119,6 +122,7 @@ pair<string, int> manacher(const string &s) {
     return make_pair(s.substr(start, max_len), start); // Retorna el palíndromo más largo.
 }
 
+
 // Función que encuentra la longitud de la subcadena más larga común entre s1 y s2
 string longestSubstring(string s1, string s2) {
     int posEnd;
@@ -174,6 +178,63 @@ string longestSubstring(string s1, string s2) {
     return "";
 }
 
+void generateSubsequences(string input, vector<string> &result) {
+    string helper;
+    for (int i = 0; i < input.size(); i++) {
+        for (int j = 0; j < input.size(); j++) {
+            if (i != j) {
+                helper += input[j];
+            }
+        }
+        result.push_back(helper);
+        helper = "";
+    }
+}
+
+void filterSubsequences(vector<string> subsequences, vector<string> &filteredResult, int newSize) {
+    unordered_set<string> uniqueSet;
+    for (int i = 0; i < subsequences.size(); i++) {
+        if (subsequences[i].length() == newSize) {
+            uniqueSet.insert(subsequences[i]);
+        }
+    }
+    filteredResult.assign(uniqueSet.begin(), uniqueSet.end());
+}
+
+void countMatchesKMP(string text, string subsequence, int &maxMatches, int &position, int idx) {
+    vector<int> matches = kmp(text, subsequence);
+    if (matches.size() > maxMatches) {
+        maxMatches = matches.size();
+        position = idx;
+    }
+}
+
+vector<string> analyzeSubsequences(string trans1, string trans2, string trans3, string code) {
+    vector<string> subsequences, filteredSubsequences;
+
+    generateSubsequences(code, subsequences);
+    
+    filterSubsequences(subsequences, filteredSubsequences, code.length() - 1);
+
+    int maxTrans1 = 0, maxTrans2 = 0, maxTrans3 = 0;
+    int idxTrans1 = 0, idxTrans2 = 0, idxTrans3 = 0;
+
+    for (int i = 0; i < filteredSubsequences.size(); i++) {
+        countMatchesKMP(trans1, filteredSubsequences[i], maxTrans1, idxTrans1, i);
+        countMatchesKMP(trans2, filteredSubsequences[i], maxTrans2, idxTrans2, i);
+        countMatchesKMP(trans3, filteredSubsequences[i], maxTrans3, idxTrans3, i);
+    }
+
+    vector<string> results(3);
+    results[0] = (maxTrans1 > 0) ? filteredSubsequences[idxTrans1] : "No se encontró subsecuencia";
+    results[1] = (maxTrans2 > 0) ? filteredSubsequences[idxTrans2] : "No se encontró subsecuencia";
+    results[2] = (maxTrans3 > 0) ? filteredSubsequences[idxTrans3] : "No se encontró subsecuencia";
+
+    return results;
+}
+
+
+
 int main(){
     string file1 = "transmission1.txt";
     string file2 = "transmission2.txt";
@@ -204,6 +265,8 @@ int main(){
         mcode.push_back(code);
     }
     mcodeFile.close();
+    
+    ofstream output(outputFile);
 
     for(int i = 0; i < mcode.size(); i++){
         cout << "Código: " << mcode[i] << endl;
@@ -220,8 +283,13 @@ int main(){
 
             cout << endl;
         }
-
         cout << "La subsecuencia más encontrada es: " << endl;
+
+        vector<string> results = analyzeSubsequences(T1, T2, T3, mcode[i]);
+
+        for (int j = 0; j < 3; j++) {
+            cout << "Transmission " << j + 1 << " ==> " << results[j] << endl;
+        }
         cout << "- - - - - - - - - - - - - -" << endl;
     }
 
