@@ -178,19 +178,25 @@ string longestSubstring(string s1, string s2) {
     return "";
 }
 
+// Función para generar subsecuencias de longitud n-1 a partir de una cadena de entrada
 void generateSubsequences(string input, vector<string> &result) {
-    string helper;
+     // Variable para construir subsecuencias
+    string h;
     for (int i = 0; i < input.size(); i++) {
         for (int j = 0; j < input.size(); j++) {
+            // Si el índice es diferente lo agrega a la subsecuencia
             if (i != j) {
-                helper += input[j];
+                h += input[j];
             }
         }
-        result.push_back(helper);
-        helper = "";
+        // Almacena la subsecuencia generada
+        result.push_back(h);
+        // Reinicia para la próxima subsecuencia
+        h = "";
     }
 }
 
+// Función para filtrar subsecuencias a una longitud específica y eliminar duplicados
 void filterSubsequences(vector<string> subsequences, vector<string> &filteredResult, int newSize) {
     unordered_set<string> uniqueSet;
     for (int i = 0; i < subsequences.size(); i++) {
@@ -200,6 +206,7 @@ void filterSubsequences(vector<string> subsequences, vector<string> &filteredRes
     }
     filteredResult.assign(uniqueSet.begin(), uniqueSet.end());
 }
+
 
 void findMostFrequentSubsequence(string trans1, string trans2, string trans3, string code, string &mostFound, int &maxMatches, string &bestFile) {
     vector<string> subsequences, filteredSubsequences;
@@ -231,8 +238,6 @@ void findMostFrequentSubsequence(string trans1, string trans2, string trans3, st
         }
     }
 }
-
-
 
 int main(){
     string file1 = "transmission1.txt";
@@ -268,54 +273,56 @@ int main(){
     ofstream output(outputFile);
 
     for(int i = 0; i < mcode.size(); i++){
-        cout << "Código: " << mcode[i] << endl;
+        output << "Código: " << mcode[i] << endl;
 
         for(int j = 0; j < 3; j++){
             vector<int> kmpVector = kmp(transmissions[j], mcode[i]);
             int size = kmpVector.size();
 
-            cout << "Transmission" << j + 1 << ".txt ==> " << size << " veces" << endl;
+            output << "Transmission" << j + 1 << ".txt ==> " << size << " veces" << endl;
 
             for(int k = 0; k < size; k++){
-                cout << kmpVector[k] << ", ";
+                output << kmpVector[k];
+                if (k < size - 1) output << ", ";
             }
 
-            cout << endl;
+            output << endl;
         }
+        
         string mostFound, bestFile;
         int maxMatches;
         findMostFrequentSubsequence(T1, T2, T3, mcode[i], mostFound, maxMatches, bestFile);
 
         if (maxMatches > 0) {
-            cout << "La subsecuencia más encontrada es: " << mostFound 
-                 << " con " << maxMatches << " veces en el archivo " << bestFile << endl;
+            output << "La subsecuencia más encontrada es: " << mostFound 
+                   << " con " << maxMatches << " veces en el archivo " << bestFile << endl;
         } else {
-            cout << "No se encontró ninguna subsecuencia con coincidencias." << endl;
+            output << "No se encontró ninguna subsecuencia con coincidencias." << endl;
         }
 
-        cout << "- - - - - - - - - - - - - -" << endl;
+        output << "- - - - - - - - - - - - - -" << endl;
     }
 
-    cout << "==============" << endl;
-    cout << "Palíndromo más grande:" << endl;
+    output << "==============" << endl;
+    output << "Palíndromo más grande:" << endl;
 
     for(int j = 0; j < 3; j++){
-
         pair<string, int> palindrome = manacher(transmissions[j]);
 
-        cout << "Transmission" << j + 1 << ".txt ==> " << "Posición: " << palindrome.second << endl;
-        cout << palindrome.first << endl;
-        cout << "----" << endl;
+        output << "Transmission" << j + 1 << ".txt ==> " << "Posición: " << palindrome.second << endl;
+        output << palindrome.first << endl;
+        output << "----" << endl;
     }
 
-    cout << "==============" << endl;
-    cout << "Los Substring más largos son:" << endl;
+    output << "==============" << endl;
+    output << "Los Substring más largos son:" << endl;
 
     for(int i = 0; i < 3; i++){
         for(int j = i + 1; j < 3; j++){
-            cout << "T" << i + 1 << "-T" <<  j + 1 << " ==> " << longestSubstring(transmissions[i], transmissions[j]) << endl;
+            output << "T" << i + 1 << "-T" <<  j + 1 << " ==> " << longestSubstring(transmissions[i], transmissions[j]) << endl;
         }
     }
 
+    output.close();
     return 0;
 }
